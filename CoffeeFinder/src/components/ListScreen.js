@@ -55,17 +55,12 @@ export default class ListScreen extends Component {
   }
 
   calculateDistance = () => {
-    console.log("calculating");
-    console.log(this.state.currentLatitude,this.state.currentLongitude);
     var calDis = this.state.placesData.map((p) => {
-        console.log("p.Latitude,p.Longitude");
-        console.log(p.Latitude,p.Longitude);
         p.Distance = this.calculate(this.state.currentLatitude,this.state.currentLongitude,p.Latitude,p.Longitude)
     })
     var order = this.state.placesData
     order.sort(function(a,b){ return a.Distance - b.Distance})
     this.setState({placesData:order})
-    console.log(this.state.placesData);
     
   }
 
@@ -79,8 +74,6 @@ export default class ListScreen extends Component {
   }
 
   navDetails = (id) => {
-    console.log("nav details");
-    console.log(id);
     var items = this.state.placesData
     var item = items.find(element => element.PlaceId == id)
     this.props.navigation.navigate('Details',{item: item});
