@@ -3,9 +3,13 @@ import { View, Text, FlatList, StyleSheet, Image, Platform, PermissionsAndroid,
     TouchableOpacity, TouchableWithoutFeedback, TouchableNativeFeedback
  } from 'react-native';
 
-import * as Endpoint from '../Endpoints/Enpoints'
-import { Card, CardItem, Icon, Button, Item } from 'native-base';
+import * as Constants from '../Endpoints/Enpoints'
+import { Card, CardItem, Icon, Button, Item, Header } from 'native-base';
+
 import GeolocationAndroid from 'react-native-geolocation-service';
+
+import StarRating from 'react-native-star-rating';
+
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -77,63 +81,88 @@ export default class ListScreen extends Component {
   navDetails = (id) => {
     console.log("nav details");
     console.log(id);
-    this.props.navigation.navigate('Details');
+    var items = this.state.placesData
+    var item = items.find(element => element.PlaceId == id)
+    this.props.navigation.navigate('Details',{item: item});
   }
 
   render() {
     return (
-      <View style={styles.containerStyle}>
-        <FlatList
-            data={this.state.placesData}
-            extraData={this.state.rerender}
-            renderItem={({item,index}) => (
-                <Card>
-                    <CardItem button={true} onPress={()=>this.navDetails(item.PlaceId)}>
-                        <View style={{flexDirection:"row",width:"100%",height:"100%"}}>
-                            <View style={{width:"20%",}}>
-                                <Image style={styles.placeImage} source={{uri:item.Thumbnail}} />
-                            </View>
-                            <View style={{width:"60%",height:"100%", paddingHorizontal:10}}>
-                                <Text style={styles.placeTitle} numberOfLines={1}>{item.PlaceName}</Text>
-                                <Text>{item.Rating}</Text>
-                                <View style={{marginTop:10}}>
-                                    <Text style={styles.placeAddress}>{item.AddressLine1}</Text>
-                                    <Text style={styles.placeAddress}>{item.AddressLine2}</Text>
+        <>
+        <Header style={{backgroundColor:"white"}}>
+            <Image style={styles.imageHeader} source={require('../img/Arkus.png')} />
+        </Header>
+        <View style={styles.containerStyle}>
+            <FlatList
+                data={this.state.placesData}
+                extraData={this.state.rerender}
+                renderItem={({item,index}) => (
+                    <Card>
+                        <CardItem button={true} onPress={()=>this.navDetails(item.PlaceId)}>
+                            <View style={styles.cardItemView}>
+                                <View style={{width:"20%",}}>
+                                    <Image style={styles.placeImage} source={{uri:item.Thumbnail}} />
+                                </View>
+                                <View style={styles.bodyStyle}>
+                                    <Text style={styles.placeTitle} numberOfLines={1}>{item.PlaceName}</Text>
+                                    <View style={{width:"50%"}}>
+                                        <StarRating disabled={true} maxStars={5} rating={item.Rating} 
+                                                starSize={20} starStyle={{color:secColor}}/>
+                                    </View>
+                                    <View style={{marginTop:10}}>
+                                        <Text style={styles.placeAddress}>{item.AddressLine1}</Text>
+                                        <Text style={styles.placeAddress}>{item.AddressLine2}</Text>
+                                    </View>
+                                </View>
+                                <View style={{width:"20%",}}>
+                                    <Text style={styles.placeMeters}>{item.Distance} Km</Text>
+                                    {item.IsPetFriendly ? 
+                                        <>
+                                            <Icon type="FontAwesome5" style={styles.petIcon} name="dog" />
+                                            <Text style={styles.petFriendly}>Pet Friendly</Text>
+                                        </>
+                                    :
+                                        null
+                                    }
                                 </View>
                             </View>
-                            <View style={{width:"20%",}}>
-                                <Text style={styles.placeMeters}>{item.Distance} Km</Text>
-                                {item.IsPetFriendly ? 
-                                    <>
-                                        <Icon type="FontAwesome5" style={styles.petIcon} name="dog" />
-                                        <Text style={styles.petFriendly}>Pet Friendly</Text>
-                                    </>
-                                :
-                                    null
-                                }
-                            </View>
-                        </View>
-                    </CardItem>
-                </Card>
-            )}
-            key={(item,index) => index}
-            keyExtractor={(item,index) => index.toString()}
-            ListEmptyComponent={<Text style={{textAlign:"center",color:primColor}}>There's no places to see</Text>}
-        />
-      </View>
+                        </CardItem>
+                    </Card>
+                )}
+                key={(item,index) => index}
+                keyExtractor={(item,index) => index.toString()}
+                ListEmptyComponent={<Text style={styles.emptyComponent}>There's no places to see</Text>}
+            />
+        </View>
+      </>
     );
   }
 }
 
-const URL = Endpoint.coffeeAPI;
-const primColor = "#92817a";
-const secColor = "#bedbbb";
-const thirdColor = "#8db596";
-const fourthColor = "#968c83"
+const URL = Constants.coffeeAPI;
+const primColor = Constants.primColor;
+const secColor = Constants.secColor;
+const thirdColor = Constants.thirdColor;
+const fourthColor = Constants.fourthColor;
 const styles = StyleSheet.create({
     containerStyle:{
         flex:1,
         marginBottom:10
+    },
+    imageHeader:{
+        width:"60%",
+        height:"100%",
+        resizeMode:"contain"
+    },
+    bodyStyle:{
+        width:"60%",
+        height:"100%",
+        paddingHorizontal:10
+    },
+    cardItemView:{
+        flexDirection:"row",
+        width:"100%",
+        height:"100%"
     },
     placeImage:{
       width:null,
@@ -147,7 +176,7 @@ const styles = StyleSheet.create({
     },
     placeAddress:{
         fontSize:14,
-        color:"#707070"
+        color:fourthColor
     },
     placeMeters:{
         fontSize:16,
@@ -155,14 +184,18 @@ const styles = StyleSheet.create({
         color: primColor
     },
     petIcon:{
-        color:"#8db596",
+        color:thirdColor,
         fontSize:45,
         width:"75%",
         alignSelf:"center"
     },
     petFriendly:{
         fontSize:14,
-        color:"#707070",
+        color:fourthColor,
         alignSelf:"center"
     },
+    emptyComponent:{
+        textAlign:"center",
+        color:primColor
+    }
 })

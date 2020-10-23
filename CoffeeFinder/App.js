@@ -21,7 +21,7 @@ export default class App extends Component {
   render(){ 
     return (
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions ={{headerShown: false}}>
           <Stack.Screen name="ListScreen" component={ListScreen}/>
           <Stack.Screen name="Details" component={Details}/>
         </Stack.Navigator>
